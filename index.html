@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tic-Tac-Toe - C Language Project</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Tic-Tac-Toe</h1>
+  <p class="subtitle">C Language Project</p>
+
+  <div class="card">
+    <h2>Play Online</h2>
+    <p class="note">
+      Browser demo of the same game logic as the C program
+      (3x3 board, X goes first, win or draw detection).
+    </p>
+    <p id="status"></p>
+    <div id="board"></div>
+    <button class="reset" id="reset">New Game</button>
+  </div>
+
+  <div class="card">
+    <h2>Run the C Program</h2>
+    <p>
+      <a class="download" href="tic_tac_toe.c" download>Download tic_tac_toe.c</a>
+    </p>
+    <p>Compile and run:</p>
+    <p><code class="inline">gcc tic_tac_toe.c -o tic_tac_toe</code></p>
+    <p><code class="inline">./tic_tac_toe</code></p>
+  </div>
+
+  <div class="card">
+    <h2>C Source Code</h2>
+    <pre id="code">Loading source code...</pre>
+  </div>
+
+  <script>
+    /* ---------- Show the C source code on the page ---------- */
+    fetch("tic_tac_toe.c")
+      .then(function (r) { return r.text(); })
+      .then(function (t) { document.getElementById("code").textContent = t; })
+      .catch(function () {
+        document.getElementById("code").textContent =
+          "Source code could not be loaded here. Use the download link above.";
+      });
+
+    /* ---------- Browser version of the game ---------- */
+    var winLines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    var boardDiv = document.getElementById("board");
+    var statusText = document.getElementById("status");
+    var board, player, gameOver, buttons;
+
+    function startGame() {
+      board = ["", "", "", "", "", "", "", "", ""];
+      player = "X";
+      gameOver = false;
+      buttons = [];
+      boardDiv.innerHTML = "";
+      statusText.textContent = "Player X's turn";
+
+      for (var i = 0; i < 9; i++) {
+        var btn = document.createElement("button");
+        btn.className = "cell";
+        btn.onclick = makeHandler(i);
+        boardDiv.appendChild(btn);
+        buttons.push(btn);
+      }
+    }
+
+    function makeHandler(i) {
+      return function () { move(i); };
+    }
+
+    function move(i) {
+      if (gameOver || board[i] !== "") return;
+
+      board[i] = player;
+      buttons[i].textContent = player;
+
+      var line = getWinLine();
+      if (line) {
+        for (var k = 0; k < 3; k++) buttons[line[k]].classList.add("win");
+        statusText.textContent = "Player " + player + " wins!";
+        gameOver = true;
+        return;
+      }
+
+      if (board.indexOf("") === -1) {
+        statusText.textContent = "The game is a draw!";
+        gameOver = true;
+        return;
+      }
+
+      player = (player === "X") ? "O" : "X";
+      statusText.textContent = "Player " + player + "'s turn";
+    }
+
+    function getWinLine() {
+      for (var i = 0; i < winLines.length; i++) {
+        var a = winLines[i][0], b = winLines[i][1], c = winLines[i][2];
+        if (board[a] !== "" && board[a] === board[b] && board[b] === board[c]) {
+          return winLines[i];
+        }
+      }
+      return null;
+    }
+
+    document.getElementById("reset").onclick = startGame;
+    startGame();
+  </script>
+
+</body>
+</html>
